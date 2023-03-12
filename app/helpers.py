@@ -39,11 +39,12 @@ def send_report(userphone, PU, delimit, report, desc, no_of_registered_voters=No
     stamptime = stamp()
 
     if report == "result":
-        data = {"phone":userphone, "PU":PU, "delimit":delimit, "report":report, "desc":desc, "more":{"number of voters on register":no_of_registered_voters, "nnumber of accredited voters":no_of_accreditedvoters,"number of total valid votes":no_of_total_valid_votes, "number of votes for NNPP": NNPPvotes, "number of votes for APC":APCvotes, "number of votes for LP":LPvotes,"number of votes for PDP": PDPvotes}, "datetime":stamptime}
+        data = {userphone:True, "PU":PU, delimit:True, "report":report, "desc":desc, "more":{"number_of_voters_on_register":no_of_registered_voters, "number_of_accredited_voters":no_of_accreditedvoters,"number_of_total_valid_votes":no_of_total_valid_votes, "number_of_votes_for_NNPP": NNPPvotes, "number_of_votes_for_APC":APCvotes, "number_of_votes_for_LP":LPvotes,"number_of_votes_for_PDP": PDPvotes}, "datetime":stamptime}
     else:
-        data = {"phone":userphone, "PU":PU, "delimit":delimit, "report":report, "desc":desc, "more":{}, "datetime":stamptime}
+        data = {userphone:True, "PU":PU, delimit:True, "report":report, "desc":desc, "more":dict(), "datetime":stamptime}
 
     reports.insert_one(data)
+    return "report submitted successfully"
 
 
 def retrieve_reports():
@@ -59,7 +60,7 @@ def get_report_number(userphone):
     if userphone.isdigit() and len(userphone) == 11:
         data = retrieve_reports()
         for i in data:
-            if i.get("phone") == userphone:
+            if i.get(userphone):
                 return i
 
     else:
@@ -80,7 +81,7 @@ def get_report(report):
 def get_report_per_PU(phone_or_pu, report):
     data = retrieve_reports()
     for i in data:
-        if (i.get("PU") == phone_or_pu or i.get("phone") == phone_or_pu) and i.get("report") == report :
+        if (i.get("PU") == phone_or_pu or i.get(phone_or_pu) == True) and i.get("report") == report :
             return i
 
 

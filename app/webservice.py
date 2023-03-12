@@ -35,39 +35,16 @@ class SendReport(Resource):
     parser.add_argument('report', 
                     type=str,
                     required=True,
-                    help="Enter thr type of report being made")
+                    help="Enter the type of report being made")
     parser.add_argument('desc', 
                     type=str,
                     required=True,
                     help="Enter description of the report")
-    parser.add_argument('number of registered voters', 
-                    type=str,
+    parser.add_argument('more', 
+                    type=dict,
                     required=False,
-                    help="Enter number of registered voters if this is a result report")
-    parser.add_argument('number of accredited voters', 
-                    type=str,
-                    required=False,
-                    help="Enter number of accredited voters if this is a result report")
-    parser.add_argument('total number of valid votes', 
-                    type=str,
-                    required=False,
-                    help="Enter total number of valid votes if this is a result report")
-    parser.add_argument('number of votes for NNPP', 
-                    type=str,
-                    required=False,
-                    help="Enter number of votes for NNPP if this is a result report")
-    parser.add_argument('number of votes for APC', 
-                    type=str,
-                    required=False,
-                    help="Enter number of votes for APC if this is a result report")
-    parser.add_argument('number of votes for PDP', 
-                    type=str,
-                    required=False,
-                    help="Enter number of votes for PDP if this is a result report")
-    parser.add_argument('number of votes for LP', 
-                    type=str,
-                    required=False,
-                    help="Enter number of votes for LP if this is a result report")
+                    help="Enter voting details if this is a result report")
+    
     
     @urgent2k_token_required
     def post(self):
@@ -77,21 +54,15 @@ class SendReport(Resource):
         delimit = payload["delimit"]
         report = payload["report"]
         desc = payload["desc"]
-        no_of_registered_voters = payload["number of registered voters"]
-        no_of_accreditedvoters = payload["number of accredited voters"]
-        no_of_total_valid_votes = payload["total number of valid votes"]
-        NNPPvotes = payload["number of votes for NNPP"]
-        APCvotes = payload["number of votes for APC"]
-        PDPvotes = payload["number of votes for PDP"]
-        LPvotes = payload["number of votes for LP"]
+        voting_details = payload["more"]
 
 
         stamptime = stamp()
 
         if report == "result":
-            data = {"phone":userphone, "PU":PU, "delimit":delimit, "report":report, "desc":desc, "more":{"number of voters on register":no_of_registered_voters, "number of accredited voters":no_of_accreditedvoters,"number of total valid votes":no_of_total_valid_votes, "number of votes for NNPP": NNPPvotes, "number of votes for APC":APCvotes, "number of votes for LP":LPvotes,"number of votes for PDP": PDPvotes}, "datetime":stamptime}
+            data = {userphone:True , "PU":PU, delimit:True, "report":report, "desc":desc, "more":voting_details, "datetime":stamptime}
         else:
-            data = {"phone":userphone, "PU":PU, "delimit":delimit, "report":report, "desc":desc, "more":{}, "datetime":stamptime}
+            data = {userphone:True, "PU":PU, delimit:True, "report":report, "desc":desc, "more":{}, "datetime":stamptime}
 
         reports.insert_one(data)
         return {"status": True, "message":"report has been submitted successfully", "data": None }, 200
@@ -114,7 +85,7 @@ class RetrieveByNumber(Resource):
             data = retrieve_reports()
             report_list = []
             for i in data:
-                if i.get("phone") == phone:
+                if i.get(phone):
                     report_list.append(i)
             return {"status": True, "message":"reports have been retrieved successfully", "data": report_list }, 200
 
@@ -160,7 +131,7 @@ class RetrieveReportPerPUorNumber(Resource):
             data = retrieve_reports()
             report_list = []
             for i in data:
-                if (i.get("PU") == phone_or_pu or i.get("phone") == phone_or_pu) and i.get("report") == report :
+                if (i.get("PU") == phone_or_pu or i.get(phone_or_pu) == True) and i.get("report") == report :
                     report_list.append(i)
             return {"status": True, "message":"reports have been retrieved successfully", "data": report_list }, 200
 
