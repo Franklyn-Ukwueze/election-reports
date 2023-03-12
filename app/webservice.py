@@ -62,7 +62,7 @@ class SendReport(Resource):
         if report == "result":
             data = {userphone:True , "PU":PU, delimit:True, "report":report, "desc":desc, "more":voting_details, "datetime":stamptime}
         else:
-            data = {userphone:True, "PU":PU, delimit:True, "report":report, "desc":desc, "more":{}, "datetime":stamptime}
+            data = {userphone:True, "PU":PU, delimit:True, "report":report, "desc":desc, "more":dict(), "datetime":stamptime}
 
         reports.insert_one(data)
         return {"status": True, "message":"report has been submitted successfully", "data": None }, 200
